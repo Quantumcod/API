@@ -1,45 +1,36 @@
-from django.contrib import admin
-from django.urls import path, include, re_path
-
-from rest_framework.permissions import IsAuthenticated, AllowAny
-
-from drf_yasg import openapi
-from drf_yasg.views import get_schema_view
-
-
-# Schema to describe documentation
-schema_view = get_schema_view(
-    openapi.Info(
-        title="Wallet API",
-        default_version='v1',
-        description="It is a wallet API created to" +
-        " get, post, update data related to project",
-        terms_of_service="https://www.google.com/policies/terms/",
-        contact=openapi.Contact(email="9780desarrollador05@gmail.com"),
-        license=openapi.License(name="9780 Capital"),
-    ),
-    public=True,
-    permission_classes=[AllowAny]
+from django.urls import path, reverse_lazy
+from django.contrib.auth.views import PasswordResetConfirmView
+from rest_framework.routers import DefaultRouter
+from .forms import EstablecerContrasena
+from .views import (
+    MyTokenObtainPairView,
+    MyRefreshTokenObtainPairView,
+    UserViewSet,
+    PermissionViewSet,
+    RolesViewSet,
+    restablecerExitoso
 )
 
-# Urls to access views
+
+router = DefaultRouter()
+router.register('users', UserViewSet, basename='users')
+router.register('permissions', PermissionViewSet, basename='permissions')
+router.register('roles', RolesViewSet, basename='roles')
+app_name = 'authentication'
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('jet/', include('jet.urls', 'jet')),
-    path('authentication/', include('applications.authentication.urls')),
-    path('general/', include('applications.general.urls')),
-    path('clients/', include('applications.clients.urls')),
-    path('company/', include('applications.company.urls')),
-    path('updates/', include('applications.updates.urls')),
-    path('reports/', include('applications.reports.urls')),
-    path('cryptocurrencies/', include('applications.cryptocurrencies.urls')),
-    path('transactions/', include('applications.transactions.urls')),
-    path('swagger/',
-         schema_view.with_ui('swagger', cache_timeout=0),
-         name='schema-swagger-ui'),
-    path('redoc/',
-         schema_view.with_ui('redoc', cache_timeout=0),
-         name='schema-redoc'),
-    re_path(r'^swagger(?P<format>\.json|\.yaml)$',
-            schema_view.without_ui(cache_timeout=0), name='schema-json'),
+    path('token/', MyTokenObtainPairView.as_view(), name='token'),
+    path('tokenRefresh/', MyRefreshTokenObtainPairView.as_view(),
+         name='tokenRefresh'),
+    path('password_reset/complete/', restablecerExitoso,
+         name='password_reset_complete'),
+    path('password_reset_confirm/<uidb64>/<token>/',
+         PasswordResetConfirmView.as_view(
+             template_name='reset_password.html',
+             form_class=EstablecerContrasena,
+             success_url=reverse_lazy('authentication:password_reset_complete')
+         ),
+         name='password_reset_confirm'
+         )
+
 ]
+urlpatterns += router.urls
