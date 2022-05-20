@@ -1,6 +1,8 @@
 from django.apps import AppConfig
 
 
-class CompanyConfig(AppConfig):
+class CryptocurrenciesConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'applications.company'
+    name = 'applications.cryptocurrencies'
+    def ready(self):
+        import applications.cryptocurrencies.signals

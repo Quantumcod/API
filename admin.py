@@ -1,4 +1,8 @@
 from django.contrib import admin
-from .models import CompanyWallets
 
-admin.site.register(CompanyWallets)
+# Register your models here.
+from .models import Cryptocurrencies, Fees,Commission
+
+admin.site.register(Cryptocurrencies)
+admin.site.register(Fees)
+admin.site.register(Commission)

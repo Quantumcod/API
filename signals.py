@@ -1,15 +1,12 @@
+from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
-from .models import CompanyWallets
+from .models import Cryptocurrencies, Fees
 from ..updates.models import Updates
 
 
 def executeUpdate(tableName, registerID, action):
-    """
-    function to register in the update table 
-    in case the companywallet table is created 
-    """
     a, c = Updates.objects.update_or_create(
         TableName=tableName,
         RegisterID=registerID,
@@ -19,12 +16,24 @@ def executeUpdate(tableName, registerID, action):
         })
 
 
-@receiver(post_save, sender=CompanyWallets)
-def saveCompanyWallets(sender, instance, created, **kwargs):
-    """
-    function of signals to register companywallet creations or upgrades
-    """
+@receiver(post_save, sender=Cryptocurrencies)
+def saveCryptocurrencies(sender, instance, created, **kwargs):
+
     if created:
-        executeUpdate('CompanyWallets', instance.pk, 'Created')
+        executeUpdate('Cryptocurrencies', instance.pk, 'Created')
     else:
-        executeUpdate('CompanyWallets', instance.pk, 'Updated')
+        executeUpdate('Cryptocurrencies', instance.pk, 'Updated')
+
+
+@receiver(post_save, sender=Fees)
+def saveFees(sender, instance, created, **kwargs):
+    if instance.Active == True and instance.Type == 'SEND':
+        Fees.objects.filter(Type='SEND').exclude(pk=instance.pk) \
+            .update(Active=False)
+    else:
+        Fees.objects.filter(Type='EXCHANGE').exclude(pk=instance.pk) \
+            .update(Active=False)
+    if created:
+        executeUpdate('Fees', instance.pk, 'Created')
+    else:
+        executeUpdate('Fees', instance.pk, 'Updated')
