@@ -1,27 +1,34 @@
 from rest_framework import serializers
-from .models import Clients, Addresses
+from .models import CompanyWallets
 
 
-class ClientsSerializer(serializers.ModelSerializer):
+class CompanyWalletsDetailSerializer(serializers.ModelSerializer):
     """
-    Class to serialize Clients model
+    Class to serialize CompanyWallets Details model
     """
+    CryptocurrencyName = serializers.CharField(
+        source='Cryptocurrency.Name')
+
     class Meta:
-        model = Clients
+        model = CompanyWallets
         fields = [
             'pk',
-            'uuid',
+            'Address',
+            'CryptocurrencyName',
+            'Quantity',
             'Active'
         ]
 
 
-class AddressesSerializer(serializers.ModelSerializer):
+class CompanyWalletsSerializer(serializers.ModelSerializer):
     """
-    Class to serialize Addresses model
+    Class to serialize CompanyWallets model
     """
     class Meta:
-        model = Addresses
+        model = CompanyWallets
         fields = [
-            'uuid',
-            'Address'
+            'pk',
+            'Address',
+            'Cryptocurrency',
+            'Active'
         ]

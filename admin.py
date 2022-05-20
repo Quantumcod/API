@@ -1,5 +1,4 @@
 from django.contrib import admin
-from .models import Clients,Addresses
+from .models import CompanyWallets
 
-admin.site.register(Clients)
-admin.site.register(Addresses)
+admin.site.register(CompanyWallets)
